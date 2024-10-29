@@ -53,11 +53,17 @@ class: chapter-slide
 
 # Why Cython? 🚀
 
+.g.g-middle[
+.g-6[
 ## Speed
 - Reduce Memory Usage
 - Improve CPU Usage
+]
+.g-6[
+![:scale 80%](images/speed.jpg)
+]
+]
 
-![](images/speed.jpg)
 
 ---
 
