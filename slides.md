@@ -78,60 +78,14 @@ class: chapter-slide
 
 ![](images/microscope.jpg)
 
----
+--
 
-# Finding Hot-spots 🔎
-## `cProfile` + snakeviz
-
-```bash
-python -m cProfile -o hist.prof hist.py
-snakeviz hist.prof
-```
-
-![](images/snakeviz.jpg)
+- `cProfile` + snakeviz
+- `viztracer`
+- `memray`
+- `Scalene`
 
 ---
-
-# Finding Hot-spots 🔎
-## `viztracer`
-
-```bash
-viztracer hist.py
-vizviewer result.json
-```
-
-![](images/viztracer.jpg)
-
----
-
-# Memory Profiling 🧠
-## `memray`
-
-```bash
-memray run np-copy.py
-memray flamegraph memray-np-copy.py.88600.bin
-```
-
-![](images/memray-profile.png)
-
----
-
-# Memory Profiling 🧠
-## `memray`
-
-![](images/memray-time.jpg)
-
----
-
-# Memory Profiling 🧠
-## Scalene
-
-```bash
-scalene np-copy.py
-```
-
-![](images/scalene.jpg)
-
 ---
 
 class: chapter-slide
@@ -144,7 +98,6 @@ class: chapter-slide
 
 - Compiling
 - Types
-- Memoryviews
 - Developing Tips
 
 ---
@@ -266,8 +219,7 @@ class: chapter-slide
 # Scikit-learn Use Cases 🛠️
 
 - Python <> Cython interface
-- Performance
-- Structural Patterns
+- Performance Features
 
 ---
 
@@ -572,6 +524,33 @@ https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/tree/_tree.pyx#
 
 ---
 
+# Header files
+
+```python
+# common.pyx
+cdef packed struct node_struct:
+    Y_DTYPE_C value
+    unsigned int count
+    intp_t feature_idx
+    X_DTYPE_C num_threshold
+	...
+```
+
+## Imported from another file
+
+```python
+# _predictor.pyx
+from .common cimport node_struct
+```
+
+https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_hist_gradient_boosting/common.pxd#L20-L27
+https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_hist_gradient_boosting/_predictor.pyx#L13
+
+---
+
+
+---
+
 # Releasing the GIL
 ## What is the GIL?
 
@@ -610,8 +589,11 @@ https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/tree/_tree.pyx#
 # nogil in function definition
 
 ```python
-
+cdef class Splitter:
+    cdef void node_value(self, float64_t* dest) noexcept nogil
 ```
+
+https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/tree/_splitter.pxd#L102
 
 ---
 
@@ -621,87 +603,517 @@ class: chapter-slide
 
 ---
 
+# nan check
 
-# OpenMP With
+```python
+has_inf = xp.any(xp.isinf(X))
+has_nan = xp.any(xp.isnan(X))
+```
 
-# C++ (Map)
+--
 
-https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/utils/_fast_dict.pxd#L17-L20
+```python
+cdef inline FiniteStatus _isfinite_disable_nan(floating* a_ptr,
+                                               Py_ssize_t length) noexcept nogil:
+    for i in range(length):
+        v = a_ptr[i]
+        if isnan(v):
+            return FiniteStatus.has_nan
+        elif isinf(v):
+            return FiniteStatus.has_infinite
+    return FiniteStatus.all_finite
+```
+
+- Almost everywhere
+
+https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/utils/_isfinite.pyx#L40-L41
 
 ---
 
-<!-- - Scikit-learn Use Cases
-	- Python <-> Cython interaction
-		- Release GIL
-			- context manager syntax
-				- _tree.pyx
-			- nogil in function def
-				- _splitter.pxd
-	- Performance
-		- nan check
-		- prange (openmp)
-			- Simple example
-				- _binning.pyx
-			- Compiler flag
-				- Openmp flag
-		- ~~Import NumPy C API~~
-			- Cimport numpy as cnp
-				- Import_array
-		- Calling SciPy BLAS directly
-			- Calling external functions
-		- C+
-			- RAI
-				- shared pointer
-				- Smart pointet
-			- Map
-				- Intfloatdict
-				- Hirearchical_fast
-			- Algorithm
-				- _tree.pyx
-			- Vector
-				- Dbscan_inner
-				- Memoryview wrapping
-				- haahing_fast
-				- _vector_sentinel.pyx
-	- DRY
-		- Pyd files
-			- cimport from other files
-		- Fused Types
-			- Generics
-				- simple function
-				- Memoryview
-			- with C++
-				- Vector
-		- Tempita for generating
-			- Extension types for “fused”
-			- Weight vector
-		 - Vtable lookup
-			 - Final
-				 - pairwise reduction
-			 - pyi files
-				 - Binary tree
-			 - Tempita generation
-				 - Loss
-			 - Fused types with extension array
-				 - Tree partition
- - Review slide for performance uplift - peak of talk
-	- Lightgbm like performance
-	- Pairwise reduction normal
-	- Pairwise reduction class mode
-	- Loss - linear models
-	-  memory improvements
-		- Nan check
-		- intfloatdict
-		-
- - Review slide on Cython features
-	 - World cloud
-- Conclusion
 
-Move profiling tools to appendix
-Alternatives
-	- Rust -> PyO3
-	- C++ -> nanobind and pybind11
-	- Numba -> JIT
-	- PyTorch -> torch.compile
-		- 2.5 had been cpu generation -->
+# OpenMP
+
+```python
+*for i in prange(data.shape[0], schedule='static', nogil=True, num_threads=n_threads):
+	left, right = 0, binning_thresholds.shape[0]
+
+	while left < right:
+		middle = left + (right - left - 1) // 2
+		if data[i] <= binning_thresholds[middle]:
+			right = middle
+		else:
+			left = middle + 1
+
+	binned[i] = left
+```
+
+- `HistGradientBoosting{Classifier,Regressor}`
+
+https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_hist_gradient_boosting/_binning.pyx#L49-L65
+
+---
+
+# Calling SciPy BLAS
+
+```python
+from scipy.linalg.cython_blas cimport sgemm, dgemm
+```
+
+```python
+with nogil, parallel(num_threads=n_threads):
+	for chunk_idx in prange(n_chunks, schedule='static'):
+		_update_chunk_dense(...)
+```
+
+--
+
+```python
+cdef void _update_chunk_dense(...) nogil:
+	_gemm(...)
+```
+
+https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/cluster/_k_means_lloyd.pyx#L118
+
+---
+
+# C++ (Map)
+
+```python
+cdef class IntFloatDict:
+    cdef cpp_map[intp_t, float64_t] my_map
+```
+
+https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/utils/_fast_dict.pxd#L17-L20
+
+```python
+cdef class IntFloatDict:
+    def append(self, intp_t key, float64_t value):
+        # Construct our arguments
+        cdef pair[intp_t, float64_t] args
+        args.first = key
+        args.second = value
+        self.my_map.insert(args)
+```
+
+- `AgglomerativeClustering`,
+
+https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/utils/_fast_dict.pyx#L116
+
+---
+
+# C++ (Vector)
+
+```python
+from libcpp.vector cimport vector
+
+def dbscan_inner(...):
+    cdef vector[intp_t] stack
+
+	while True:
+		...
+			stack.push_back(v)
+
+		if stack.size() == 0:
+			break
+		i = stack.back()
+		stack.pop_back()
+```
+
+- `DBSCAN`
+
+https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/cluster/_dbscan_inner.pyx#L32
+
+---
+
+# C++ (Vector)
+
+```python
+def _fit_encoding_fast(...):
+	cdef:
+        # Gives access to encodings without gil
+        vector[double*] encoding_vec
+
+    encoding_vec.resize(n_features)
+    for feat_idx in range(n_features):
+        current_encoding = np.empty(shape=n_categories[feat_idx], dtype=np.float64)
+        encoding_vec[feat_idx] = &current_encoding[0]
+
+
+```
+
+- `TargetEncoder`
+
+https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/preprocessing/_target_encoder_fast.pyx#L20
+
+---
+
+# C++ Algorithm
+
+```python
+cpdef build(
+
+```
+
+https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/tree/_tree.pyx#L468-L469
+
+---
+
+# Fused Types (Intro)
+
+```python
+cdef floating abs_max(int n, const floating* a) noexcept nogil:
+    """np.max(np.abs(a))"""
+    cdef int i
+    cdef floating m = fabs(a[0])
+    cdef floating d
+    for i in range(1, n):
+        d = fabs(a[i])
+        if d > m:
+            m = d
+    return m
+```
+
+https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/linear_model/_cd_fast.pyx#L50-L59
+
+---
+
+# Fused Types (Memoryview)
+
+```python
+ctypedef fused INT_DTYPE:
+    int64_t
+    int32_t
+
+ctypedef fused Y_DTYPE:
+    int64_t
+    int32_t
+    float64_t
+    float32_t
+```
+
+--
+
+```python
+def _fit_encoding_fast(
+    INT_DTYPE[:, ::1] X_int,
+    const Y_DTYPE[:] y,
+    int64_t[::1] n_categories,
+    double smooth,
+    double y_mean,
+)
+```
+
+https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/preprocessing/_target_encoder_fast.pyx#L17
+
+---
+
+# C++ Vector + Fused types into NumPy Array
+
+```python
+ctypedef fused vector_typed:
+    vector[float64_t]
+    vector[intp_t]
+    vector[int32_t]
+    vector[int64_t]
+
+cdef cnp.ndarray vector_to_nd_array(vector_typed * vect_ptr):
+
+cdef class StdVectorSentinelInt64:
+    cdef vector[int64_t] vec
+```
+
+--
+
+```python
+cdef cnp.ndarray vector_to_nd_array(vector_typed * vect_ptr):
+	cdef:
+        StdVectorSentinel sentinel = _create_sentinel(vect_ptr)
+        cnp.ndarray arr = cnp.PyArray_SimpleNewFromData(...)
+
+		Py_INCREF(sentinel)
+		cnp.PyArray_SetBaseObject(arr, sentinel)
+		return arr
+```
+
+https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/utils/_vector_sentinel.pxd#L6-L12
+
+---
+
+# Tempita
+
+
+```python
+# name_suffix, c_type
+dtypes = [('64', 'double'),
+          ('32', 'float')]
+
+}}
+
+{{for name_suffix, c_type in dtypes}}
+
+cdef class WeightVector{{name_suffix}}(object):
+    cdef readonly {{c_type}}[::1] w
+    cdef readonly {{c_type}}[::1] aw
+	...
+
+{{endfor}}
+```
+
+--
+
+## Generated Code
+
+```python
+cdef class WeightVector64(object):
+    cdef readonly double[::1] w
+    cdef readonly double[::1] aw
+
+cdef class WeightVector32(object):
+    cdef readonly float[::1] w
+    cdef readonly float[::1] aw
+```
+
+
+https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/utils/_weight_vector.pxd.tp#L21-L27
+
+---
+
+# Optimizing Performance (Virtual Table)
+## The Problem
+
+```python
+cdef class CyLossFunction:
+
+	def loss(self, ...)
+		for i in prange(
+			n_samples, schedule='static', nogil=True, num_threads=n_threads
+		):
+			loss_out[i] = self.single_loss(y_true[i], raw_prediction[i]{{with_param}})
+```
+
+--
+
+```python
+cdef class CyHalfSquaredError(CyLossFunction):
+
+	cdef inline double self.single_loss(
+		double y_true,
+		double raw_prediction
+	) noexcept nogil:
+		return 0.5 * (raw_prediction - y_true) * (raw_prediction - y_true)
+
+```
+
+--
+
+## Does not work!
+
+--
+
+## Solution - Do not be dynamic!
+
+---
+
+# Optimizing Performance (Virtual Table)
+## Tempita
+
+```python
+cdef class {{name}}(CyLossFunction):
+
+    def loss(...):
+		for i in prange(
+			n_samples, schedule='static', nogil=True, num_threads=n_threads
+		):
+			loss_out[i] = {{closs}}(y_true[i], raw_prediction[i]{{with_param}})
+```
+
+--
+
+## Generated Code
+
+```python
+cdef class CyHalfSquaredError(CyLossFunction):
+
+    def loss(...):
+		for i in prange(
+			n_samples, schedule='static', nogil=True, num_threads=n_threads
+		):
+*			loss_out[i] = closs_half_squared_error(y_true[i], raw_prediction[i])
+```
+
+https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/_loss/_loss.pyx.tp#L1025
+
+- `linear`, `GradientBoosting*`, `HistGradientBoosting*`
+
+---
+
+# Optimizing Performance (Virtual Table)
+## Fused Types on classes
+
+```python
+ctypedef fused Partitioner:
+    DensePartitioner
+    SparsePartitioner
+```
+
+--
+
+```python
+cdef inline int node_split_best(
+    Splitter splitter,
+    Partitioner partitioner,
+	...):
+		partitioner.init_node_split(...)
+
+		while ...:
+			partitioner.find_min_max(...)
+```
+
+- `tree`, `RandomForest*`, `GradientBoosting*`
+
+https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/tree/_splitter.pyx#L40-L42
+
+---
+
+# Cython Features Covered Today
+
+.g[
+.g-6[
+## Python <> Cython Interface
+- Compiling
+- Types
+- Memoryviews
+]
+.g-6[
+## Performance Features
+- "Cython classes"
+- C++
+- Fused Types
+- Tempita
+]
+]
+
+---
+
+# Performance Uplift
+
+- `TargetEncoder` - 4-5x runtime and less memory usage compared to pure NumPy version
+- `HistGradientBoosting*`: LightGBM-like performance
+- `LogisticRegression`, `GammaRegressor`, `PoissonRegressor`, `TweedieRegressor`, `GradientBoosting*`
+	- 2x improvement
+- Almost all estimators in `cluster`, `manifold`, `neighbors`, `semi_supervised` modules
+	- 20x improvement
+- Reduce memory usage for nan-inf check
+
+---
+
+
+.g.g-middle[
+.g-7[
+.smaller[
+# Pushing Cython to its Limits in Scikit-learn
+]
+- Why Cython? 🚀
+- Cython 101 🍀
+- Scikit-learn Use Cases 🛠️
+]
+.g-5.g-center[
+.smaller[
+]
+
+Thomas J. Fan<br>
+<a href="https://www.github.com/thomasjpfan" target="_blank" class="title-link"><span class="icon icon-github right-margin"></span>@thomasjpfan</a>
+<a class="this-talk-link", href="https://github.com/thomasjpfan/pydata-nyc-2024-cython-in-scikit-learn" target="_blank">github.com/thomasjpfan/pydata-nyc-2024-cython-in-scikit-learn</a>
+
+]
+]
+
+
+---
+
+# Appendix
+
+---
+
+# Other Languages
+
+.g[
+.g-6[
+
+.center[
+## AOT
+![](images/aot-logos.png)
+]
+
+- **Ahead of time** compiled
+- Harder to build
+- Less requirements during runtime
+]
+.g-6[
+
+.center[
+## Numba
+![:scale 38%](images/numba.jpg)
+]
+
+- **Just in time** compiled
+- Source code is Python
+- Requires compiler at runtime
+]
+]
+
+
+---
+
+# Finding Hot-spots 🔎
+## `cProfile` + snakeviz
+
+```bash
+python -m cProfile -o hist.prof hist.py
+snakeviz hist.prof
+```
+
+![](images/snakeviz.jpg)
+
+---
+
+# Finding Hot-spots 🔎
+## `viztracer`
+
+```bash
+viztracer hist.py
+vizviewer result.json
+```
+
+![](images/viztracer.jpg)
+
+---
+
+# Memory Profiling 🧠
+## `memray`
+
+```bash
+memray run np-copy.py
+memray flamegraph memray-np-copy.py.88600.bin
+```
+
+![](images/memray-profile.png)
+
+---
+
+# Memory Profiling 🧠
+## `memray`
+
+![](images/memray-time.jpg)
+
+---
+
+# Memory Profiling 🧠
+## Scalene
+
+```bash
+scalene np-copy.py
+```
+
+![](images/scalene.jpg)
 
