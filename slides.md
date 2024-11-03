@@ -5,6 +5,8 @@ class: title-slide
 
 # Pushing Cython to its Limits in Scikit-learn
 
+![:scale 30%](images/qr.png)
+
 .larger[Thomas J. Fan]<br>
 <a href="https://www.github.com/thomasjpfan" target="_blank" class="title-link"><span class="icon icon-github right-margin"></span>@thomasjpfan</a>
 <a class="this-talk-link", href="https://github.com/thomasjpfan/pydata-nyc-2024-cython-in-scikit-learn" target="_blank">github.com/thomasjpfan/pydata-nyc-2024-cython-in-scikit-learn</a>
@@ -69,8 +71,6 @@ class: top
 
 class: top
 
-<br>
-
 # Performance Uplift
 
 .g.g-center[
@@ -91,8 +91,6 @@ class: top
 ---
 
 class: top
-
-<br>
 
 # Performance Uplift
 
@@ -1487,23 +1485,18 @@ cdef inline int node_split_best(
 
 ---
 
-# Cython Features Covered
+class: top
 
-.g[
+<br>
+
+.g.g-middle[
 .g-6[
-## Python <-> Cython interface ⚙️
-- Compiling
-- Types
-- Memoryviews (NumPy interaction)
-- "Cython classes"
+# Cython Features Covered
 ]
 .g-6[
+![:scale 50%](images/cython-logo.jpg)
 ]
 ]
-
----
-
-# Cython Features Covered
 
 .g[
 .g-6[
@@ -1522,11 +1515,11 @@ cdef inline int node_split_best(
 ]
 ]
 
+**Learn more** @ https://cython.readthedocs.io/en/latest/
+
 ---
 
 class: top
-
-<br>
 
 # Performance Uplift
 
@@ -1552,7 +1545,7 @@ class: top
 
 class: top
 
-<br><br>
+<br>
 
 # Pushing Cython to its Limits in Scikit-learn
 
@@ -1562,7 +1555,8 @@ class: top
 ## Cython 101 🍀
 ## Scikit-learn Use Cases 🛠️
 ]
-.g-6[
+.g-6.g-center[
+![:scale 60%](images/qr.png)
 ]
 ]
 
