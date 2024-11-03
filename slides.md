@@ -1,4 +1,5 @@
 title: Pushing Cython to its Limits in Scikit-learn
+
 use_katex: False
 class: title-slide
 
@@ -37,25 +38,26 @@ class: top
 
 ---
 
+.g.g-middle[
+.g-6[
 # Agenda 📓
-
-- Why Cython? 🚀
-- Cython 101 🍀
-- Scikit-learn Use Cases 🛠️
-
----
-
-class: chapter-slide
-
-# Why Cython? 🚀
+## - Why Cython? 🚀
+## - Cython 101 🍀
+## - Scikit-learn Use Cases 🛠️
+]
+.g-6.g-center[
+![:scale 90%](images/cython-logo.jpg)
+]
+]
 
 ---
+
 
 # Why Cython? 🚀
 
 .g.g-middle[
 .g-6[
-## Speed
+## Performance
 - Reduce Memory Usage
 - Improve CPU Usage
 ]
@@ -63,29 +65,70 @@ class: chapter-slide
 ![:scale 80%](images/speed.jpg)
 ]
 ]
+---
+
+class: top
+
+<br>
+
+# Performance Uplift
+
+.g.g-center[
+.g-1[]
+.g-5[
+![:scale 70%](images/scikit-learn-logo-without-subtitle.svg)
+]
+.g-5[
+![:scale 70%](images/cython-logo.jpg)
+]
+.g-1[]
+]
+
+- `HistGradientBoosting*`: **LightGBM**-like performance
+- **2x improvement**: `LogisticRegression`, `linear_model` module, and `GradientBoosting*`
 
 
 ---
 
+class: top
+
+<br>
+
+# Performance Uplift
+
+.g.g-center[
+.g-1[]
+.g-5[
+![:scale 70%](images/scikit-learn-logo-without-subtitle.svg)
+]
+.g-5[
+![:scale 70%](images/cython-logo.jpg)
+]
+.g-1[]
+]
+
+- `HistGradientBoosting*`: **LightGBM**-like performance
+- **2x improvement**: `LogisticRegression`, `linear_model` module, and `GradientBoosting*`
+- **20x improvement** in `cluster`, `manifold`, `neighbors`, `semi_supervised` modules
+- `TargetEncoder` - **4-5x runtime** and less memory usage
+- **Reduce memory usage** for validation checks
+
+---
+
+.g.g-middle[
+.g-6[
 # Why Cython? 🚀
 ## Profiling
-
-## Improving existing code
-- Already have code to profile
-
-## Writing new code
-- Use libraries team is familiar with as a first pass
-
-![](images/microscope.jpg)
-
---
-
 - `cProfile` + snakeviz
 - `viztracer`
 - `memray`
 - `Scalene`
+]
+.g-6.g-center[
+![:scale 70%](images/microscope.jpg)
+]
+]
 
----
 ---
 
 class: chapter-slide
@@ -94,14 +137,24 @@ class: chapter-slide
 
 ---
 
+.g.g-middle[
+.g-6[
 # Cython 101 🍀
 
 - Compiling
 - Types
-- Developing Tips
+- Developer Tips
+
+]
+.g-6[
+![:scale 80%](images/start-line.jpg)
+]
+]
 
 ---
 
+class: top
+<br>
 # Compiling
 
 ```python
@@ -112,6 +165,8 @@ def add(x, y):
 ```
 
 --
+
+# `setup.py`
 
 ```python
 from setuptools import setup
@@ -128,6 +183,11 @@ python setup.py build_ext --inplace
 
 ---
 
+class: top
+
+<br>
+<br>
+
 # Importing from Python code
 
 ```python
@@ -140,11 +200,22 @@ print(result)
 
 --
 
-## Current Benefits
+## Benefits
+Does not go through the Python Interpreter
 
-- Removes the Python interpreter
+```python
+# simple.pyx
+
+def add(x, y):
+    return x + y
+```
+
 
 ---
+
+class: top
+
+<br><br><br>
 
 # Adding Types
 
@@ -164,6 +235,10 @@ def add(x: int, y: int):
 
 ---
 
+class: top
+
+<br><br>
+
 # Defining Functions
 
 - `def` : Call from Python
@@ -175,12 +250,16 @@ def add(x: int, y: int):
 ```python
 *cdef float linear(slope: float, x: float, b: float):
     return slope * x + b
+```
 
+--
+
+```python
 def two_linear(slope: float, x: float, b: float):
     cdef:
 *       float r1 = linear(slope, x, b)
-*       float r2 = linear(-slope, x, b)
-*       float result = r1 + 2 * r2
+        float r2 = linear(-slope, x, b)
+        float result = r1 + 2 * r2
 
     return result
 ```
@@ -194,19 +273,23 @@ def two_linear(slope: float, x: float, b: float):
 cython --annotate simple.pyx
 ```
 
-![](images/simple-annotated.jpg)
+.center[
+![:scale 80%](images/simple-annotated.jpg)
+]
 
 ---
 
 # Working in Jupyter
 
-![](images/cython-notebook-magic.jpeg)
+.center[
+![:scale 80%](images/cython-notebook-magic.jpeg)
+]
 
 ---
 
 # Working in Jupyter (Annotation)
 
-![](images/cython-notebook-annotate.jpg)
+![:scale 65%](images/cython-notebook-annotate.jpg)
 
 ---
 
@@ -216,20 +299,39 @@ class: chapter-slide
 
 ---
 
-# Scikit-learn Use Cases 🛠️
 
-- Python <> Cython interface
-- Performance Features
+.g.g-middle[
+.g-6[
+# Scikit-learn Use Cases 🛠️
+- Python <-> Cython interface ⚙️
+- Performance
+	- Improve Runtime 🏎️
+	- Reduce Memory 🧠
+]
+.g-6.g-center[
+![:scale 70%](images/scikit-learn-logo-without-subtitle.svg)
+]
+]
 
 ---
 
-# Python <> Cython interface - NumPy Arrays
+class: top
+
+# Python <-> Cython interface - NumPy Arrays
+
+.center[
+![:scale 30%](images/numpy.png)
+]
 
 ```python
 %% cython
 *def add_value(float[:, :] X, float value):
 	...
 ```
+
+--
+
+## Call from Python
 
 ```python
 import numpy as np
@@ -240,11 +342,13 @@ result = add_value(y, 1.4)
 
 --
 
-## Python Buffer Protocol
-
-- Python [Buffer Protocol](https://docs.python.org/3/c-api/buffer.html)
+### Python [Buffer Protocol](https://docs.python.org/3/c-api/buffer.html) 🔌
 
 ---
+
+class: top
+
+<br><br>
 
 # Python <> Cython interface - NumPy Arrays
 ## Write loops!
@@ -280,10 +384,12 @@ scikit_learn_cython_args = [
   '-X nonecheck=False',
   '-X cdivision=True',
   '-X profile=False',
+  ...
+]
 ```
 
-.footnote[
-[Source](https://github.com/scikit-learn/scikit-learn/blob/main/sklearn/meson.build#L183-L190)
+.footnote-back[
+[meson.build](https://github.com/scikit-learn/scikit-learn/blob/main/sklearn/meson.build#L183-L190)
 ]
 
 ---
@@ -298,7 +404,7 @@ def add_one(float[:, :] X):
     X[0, 0] += 1
 ```
 
-![](images/boundscheck-true.png)
+![:scale 80%](images/boundscheck-true.png)
 
 ---
 
@@ -306,7 +412,7 @@ def add_one(float[:, :] X):
 # Memoryview directives (`boundscheck=False`)
 
 ```python
-@cython.boundscheck(False)
+*@cython.boundscheck(False)
 def add_one(float[:, :] X):
     X[0, 0] += 1
 ```
@@ -331,17 +437,21 @@ def add_one(float[:, :] X):
 
 ```python
 @cython.boundscheck(False)
-@cython.wraparound(False)
+*@cython.wraparound(False)
 def add_one_bad(float[:, :] X):
-    cdef:
-        float[:, :] X_ref = X
     X[0, 0] += 1
 ```
 
+![](images/cython-memoryview-wrapsaround-false.jpg)
+
 ---
 
+class: top
+
+<br><br>
+
 # Cython directives
-## Define per file
+## Define for file 🗃️
 
 ```python
 # cython: language_level=3
@@ -352,18 +462,31 @@ cimport cython
 ...
 ```
 
+--
+
+## Globally in build backend 🌎
+
+[scikit-learn's meson.build](https://github.com/scikit-learn/scikit-learn/blob/main/sklearn/meson.build#L183-L190)
+
 ---
 
-# scikit-learn configuration
+# scikit-learn Global configuration
 ## Dynamic configure `boundscheck` for testing
 
 ```python
 scikit_learn_cython_args = [
   '-X language_level=3',
-  '-X boundscheck=' + boundscheck,
+* '-X boundscheck=' + boundscheck,
+  '-X wraparound=False',
+  '-X initializedcheck=False',
+  '-X nonecheck=False',
+  '-X cdivision=True',
+  ...
+]
 ```
 
 ---
+
 
 # Returning memoryviews
 
@@ -371,34 +494,200 @@ scikit_learn_cython_args = [
 def _make_unique(...):
     cdef floating[::1] y_out = np.empty(unique_values, dtype=dtype)
 
-	# Compute
+	# Computation
 
     return(
-        np.asarray(x_out[:i+1]), ...
+*       np.asarray(x_out[:i+1]),
+		...
     )
 ```
 
-.footnote[
-![sklearn/_isotonic.pyx](https://github.com/scikit-learn/scikit-learn/blob/main/sklearn/_isotonic.pyx#L111-L115)
+- `IsotonicRegression`
+
+
+.footnote-back[
+[_isotonic.pyx](https://github.com/scikit-learn/scikit-learn/blob/main/sklearn/_isotonic.pyx#L111-L115)
 ]
 
 ---
 
-# Strides 1D
+class: top
 
-- `float[:]` - Unknown contiguous
-- `float[::1]` - Contiguous 1D
-
-<!-- TODO: Picture of the two options -->
-
----
+<br>
 
 # Strides 2D
 
-- `float[:, ::1]` - C contiguous
-- `float[::1, :]` - F contiguous
+![](images/memory-buffer.svg)
 
-<!-- TODO: Picture of the two options -->
+--
+
+.g[
+.g-6[
+#### `float[:, ::1]` - C contiguous
+![](images/strides-2d-C.svg)
+]
+.g-6[
+]
+]
+
+---
+
+class: top
+
+<br>
+
+# Strides 2D
+
+![](images/memory-buffer.svg)
+
+.g[
+.g-6[
+#### `float[:, ::1]` - C contiguous
+![](images/strides-2d-C.svg)
+]
+.g-6[
+#### `float[::1, :]` - F contiguous
+![](images/strides-2d-F.svg)
+]
+]
+
+---
+
+class: top
+
+<br><br>
+
+# NumPy API
+
+```python
+import numpy as np
+a = np.ones((2, 3))
+
+print(a.flags)
+```
+
+--
+
+```
+  C_CONTIGUOUS : True
+  F_CONTIGUOUS : False
+  OWNDATA : True
+  WRITEABLE : True
+  ALIGNED : True
+  WRITEBACKIFCOPY : False
+```
+
+---
+
+
+class: top
+
+# Strides 1D
+
+```python
+import numpy as np
+X = np.array([[0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11]])
+```
+
+--
+
+## `float[::1]` - Contiguous
+
+.g[
+.g-6[
+![:scale 80%](images/strides-1d-R.svg)
+]
+
+.g-6[
+
+]
+]
+
+---
+
+class: top
+
+# Strides 1D
+
+```python
+import numpy as np
+X = np.array([[0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11]])
+```
+
+## `float[::1]` - Contiguous
+
+.g[
+.g-6[
+![:scale 80%](images/strides-1d-R.svg)
+]
+
+.g-6[
+```python
+X_row = X[0, :]
+
+print(X_row.flags)
+```
+```
+  C_CONTIGUOUS : True
+  F_CONTIGUOUS : True
+  ...
+```
+]
+]
+
+---
+
+class: top
+
+# Strides 1D
+
+```python
+import numpy as np
+X = np.array([[0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11]])
+```
+
+## `float[:]` - Non-Contiguous
+
+.g[
+.g-6[
+![:scale 80%](images/strides-1d-C.svg)
+]
+.g-6[
+]
+]
+
+---
+
+class: top
+
+# Strides 1D
+
+```python
+import numpy as np
+X = np.array([[0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11]])
+```
+
+## `float[:]` - Non-Contiguous
+
+.g[
+.g-6[
+![:scale 80%](images/strides-1d-C.svg)
+]
+.g-6[
+
+```python
+X_col = X[:, 1]
+
+print(X_col.flags)
+```
+```
+  C_CONTIGUOUS : False
+  F_CONTIGUOUS : False
+  ...
+```
+
+]
+]
 
 ---
 
@@ -408,17 +697,18 @@ def _make_unique(...):
 ```python
 cpdef floating _inertia_dense(
 *       const floating[:, ::1] X,           # IN
-*       const floating[::1] sample_weight,  # IN
+        const floating[::1] sample_weight,  # IN
         const floating[:, ::1] centers,     # IN
         const int[::1] labels,              # IN
         int n_threads,
         int single_label=-1,
 ):
 ```
-`KMeans`, `BisectingKMeans`
 
-.footnote[
-[Source](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/cluster/_k_means_common.pyx#L94-L101)
+- `KMeans`, `BisectingKMeans`
+
+.footnote-back[
+[cluster/_k_means_common.pyx](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/cluster/_k_means_common.pyx#L94-L101)
 ]
 
 ---
@@ -426,9 +716,19 @@ cpdef floating _inertia_dense(
 # Const memoryviews
 ## Support readonly data - Use case
 
-<!-- Show readonly with SuccessiveHalving -->
+```python
+from sklearn.experimental import enable_halving_search_cv
+from sklearn.model_selection import HalvingRandomSearchCV
+
+search_cv = HalvingRandomSearchCV(estimator, n_jobs=8)
+search_cv.fit(X, y)
+```
+
+![](images/memmap-sk.svg)
 
 ---
+
+class: top
 
 # Structs
 
@@ -440,11 +740,36 @@ cdef struct BuildPrunedRecord:
     bint is_left
 ```
 
-.footnote[
-![sklearn/tree/_tree.pyx](https://github.com/scikit-learn/scikit-learn/blob/main/sklearn/tree/_tree.pyx#L1869-L1873)
+--
+
+## Depth first search
+
+```python
+cdef void _build_pruned_tree(...):
+	cdef:
+        stack[BuildPrunedRecord] prune_stack
+
+    with nogil:
+        prune_stack.push({"start": 0, "depth": 0, "parent": _TREE_UNDEFINED, "is_left": 0})
+```
+
+--
+
+```python
+        while not prune_stack.empty():
+            stack_record = prune_stack.top()
+            prune_stack.pop()
+```
+
+- `tree` module, `RandomForest*`
+
+.footnote-back[
+[tree/_tree.pyx](https://github.com/scikit-learn/scikit-learn/blob/main/sklearn/tree/_tree.pyx#L1869-L1873)
 ]
 
 ---
+
+class: top
 
 # Packed Structs for memoryviews
 
@@ -454,7 +779,10 @@ cdef packed struct hist_struct:
     Y_DTYPE_C sum_hessians
     unsigned int count
 ```
-https://github.com/scikit-learn/scikit-learn/blob/main/sklearn/ensemble/_hist_gradient_boosting/common.pxd#L12-L17
+
+--
+
+### NumPy [Structured Dtype](https://numpy.org/doc/stable/user/basics.rec.html)
 
 ```python
 HISTOGRAM_DTYPE = np.dtype([
@@ -463,11 +791,10 @@ HISTOGRAM_DTYPE = np.dtype([
     ('count', np.uint32),  # number of samples in bin
 ])
 ```
-https://github.com/scikit-learn/scikit-learn/blob/main/sklearn/ensemble/_hist_gradient_boosting/common.pyx#L20-L24
 
----
+--
 
-# Packed Structs for memoryviews
+### Memoryview
 
 ```python
 hist_struct [:, ::1] histograms = np.empty(
@@ -475,12 +802,17 @@ hist_struct [:, ::1] histograms = np.empty(
 	dtype=HISTOGRAM_DTYPE
 )
 ```
-https://github.com/scikit-learn/scikit-learn/blob/main/sklearn/ensemble/_hist_gradient_boosting/histogram.pyx#L141-L144
+.footnote-back[
+[ensemble/_hist_gradient_boosting/histogram.pyx](https://github.com/scikit-learn/scikit-learn/blob/main/sklearn/ensemble/_hist_gradient_boosting/histogram.pyx#L141-L144)
+]
 
-https://numpy.org/doc/stable/user/basics.rec.html
 
 
 ---
+
+class: top
+
+<br><br><br>
 
 # "Cython classes": Extension Types
 
@@ -494,40 +826,56 @@ cdef class Tree:
 	cdef float64_t* value
 ```
 
-- `DecisionTree{Regressor,Classifier}`
-- `RandomForest{Regressor,Classifier}`
-- `GradientBoosting{Regressor,Classifier}`
+--
 
-https://github.com/scikit-learn/scikit-learn/blob/main/sklearn/tree/_tree.pxd#L36-L54
+- `DecisionTree*`, `RandomForest*`, `GradientBoosting*`
+
+.footnote-back[
+[tree/_tree.pxd](https://github.com/scikit-learn/scikit-learn/blob/main/sklearn/tree/_tree.pxd#L36-L54)
+]
 
 ---
 
+class: top
+
+<br><br>
+
 # "Cython classes": Extension Types
+## Constructor
 
 ```python
 cdef class Tree:
     def __cinit__(self, intp_t n_features, cnp.ndarray n_classes, intp_t n_outputs):
         safe_realloc(&self.n_classes, n_outputs)
 		...
+```
 
-	cdef int _resize_c(self, intp_t capacity=INTPTR_MAX) except -1 nogil:
-		...
-        safe_realloc(&self.nodes, capacity)
+--
 
+## Destructor
+
+```
     def __dealloc__(self):
         free(self.n_classes)
 		free(self.nodes)
 		...
 ```
 
-https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/tree/_tree.pyx#L783
+.footnote-back[
+[tree/_tree.pyx](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/tree/_tree.pyx#L783)
+]
 
 ---
 
+class: top
+
+<br>
+
 # Header files
 
+`HistGradientBoosting*`
+
 ```python
-# common.pyx
 cdef packed struct node_struct:
     Y_DTYPE_C value
     unsigned int count
@@ -536,43 +884,63 @@ cdef packed struct node_struct:
 	...
 ```
 
+[ensemble/_hist_gradient_boosting/common.pxd](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_hist_gradient_boosting/common.pxd#L20-L27)
+
+--
+
 ## Imported from another file
 
 ```python
-# _predictor.pyx
 from .common cimport node_struct
 ```
 
-https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_hist_gradient_boosting/common.pxd#L20-L27
-https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_hist_gradient_boosting/_predictor.pyx#L13
-
----
+[ensemble/_hist_gradient_boosting/_predictor.pyx](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_hist_gradient_boosting/_predictor.pyx#L13)
 
 
 ---
 
-# Releasing the GIL
-## What is the GIL?
+# Python's Global Interpreter Lock (GIL) 🔐
+.g.g-middle[
+.g-8[
+## Prevents Python objects from being accessed at the same time
+]
+.g-4[
+![:scale 100%](images/lock.jpg)
+]
+]
 
 ---
 
-# Why Release the GIL
+class: top
+
+<br><br><br>
+
+# GIL - Solution
+## Release the GIL! ⛓️‍💥
+
+--
 
 ```python
 trees = Parallel(
-	n_jobs=self.n_jobs,
-	verbose=self.verbose,
-	prefer="threads",
+    n_jobs=self.n_jobs, ... prefer="threads",
 )(
-	delayed(_parallel_build_trees)(...)
+*   delayed(_parallel_build_trees)(...)
+    for i, t in enumerate(trees)
+)
 ```
 
-- `RandomForest{Classifier,Regressor}`
+`ensemble.RandomForest*`
+
+
+.footnote-back[
+[ensemble/_forest.py](https://github.com/scikit-learn/scikit-learn/blob/main/sklearn/ensemble/_forest.py#L492)
+]
 
 ---
 
 # Releasing the Gil in Cython
 
+## Context manager!
 
 ```python
 *with nogil:
@@ -582,28 +950,58 @@ trees = Parallel(
 	splitter.node_value(...)
 ```
 
-https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/tree/_tree.pyx#L213
+Everything in block must **not interact** with Python objects
+
+.footnote-back[
+[tree/_tree.pyx](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/tree/_tree.pyx#L213)
+]
 
 ---
 
+class: top
+
+<br><br>
+
 # nogil in function definition
+
+## Tree builder
+
+```python
+with nogil:
+	builder_stack.push(...)
+	...
+	node_id = tree._add_node(...)
+*   splitter.node_value(...)
+```
+
+--
+
+### `node_value` definition
 
 ```python
 cdef class Splitter:
     cdef void node_value(self, float64_t* dest) noexcept nogil
 ```
 
-https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/tree/_splitter.pxd#L102
+**Must** have `nogil`
+
+.footnote-back[
+[tree/_splitter.pxd](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/tree/_splitter.pxd#L102)
+]
 
 ---
 
 class: chapter-slide
 
-# Performance
+# Performance 🏎️
 
 ---
 
-# nan check
+class: top
+
+# Checking for nans or infs
+
+### NumPy
 
 ```python
 has_inf = xp.any(xp.isinf(X))
@@ -611,6 +1009,8 @@ has_nan = xp.any(xp.isnan(X))
 ```
 
 --
+
+### Cython
 
 ```python
 cdef inline FiniteStatus _isfinite_disable_nan(floating* a_ptr,
@@ -624,14 +1024,17 @@ cdef inline FiniteStatus _isfinite_disable_nan(floating* a_ptr,
     return FiniteStatus.all_finite
 ```
 
-- Almost everywhere
+Used **almost everywhere** with `check_array`
 
-https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/utils/_isfinite.pyx#L40-L41
+.footnote-back[
+[utils/_isfinite.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/utils/_isfinite.pyx#L40-L41)
+]
 
 ---
 
 
 # OpenMP
+## Native Parallelism
 
 ```python
 *for i in prange(data.shape[0], schedule='static', nogil=True, num_threads=n_threads):
@@ -647,43 +1050,64 @@ https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/utils/_isfinite
 	binned[i] = left
 ```
 
-- `HistGradientBoosting{Classifier,Regressor}`
+- `HistGradientBoosting{Classifier, Regressor}`
 
-https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_hist_gradient_boosting/_binning.pyx#L49-L65
+.footnote-back[
+[_hist_gradient_boosting/_binning.pyx](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_hist_gradient_boosting/_binning.pyx#L49-L65)
+]
 
 ---
 
-# Calling SciPy BLAS
+class: top
+
+<br><br>
+
+# Calling SciPy BLAS with Cython
 
 ```python
 from scipy.linalg.cython_blas cimport sgemm, dgemm
 ```
 
-```python
-with nogil, parallel(num_threads=n_threads):
-	for chunk_idx in prange(n_chunks, schedule='static'):
-		_update_chunk_dense(...)
-```
+### `gemm`: General Matrix Multiply
 
 --
 
+<br>
+
+## OpenMP + Cython Blas
+
 ```python
-cdef void _update_chunk_dense(...) nogil:
-	_gemm(...)
+with nogil, parallel(num_threads=n_threads):
+
+	for chunk_idx in prange(n_chunks, schedule='static'):
+		_update_chunk_dense(...)  # function calls gemm
 ```
 
-https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/cluster/_k_means_lloyd.pyx#L118
+.footnote-back[
+[cluster/_k_means_lloyd.pyx](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/cluster/_k_means_lloyd.pyx#L118)
+]
 
 ---
 
+class: top
+
+<br>
+
 # C++ (Map)
+
+[utils/_fast_dict.pxd](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/utils/_fast_dict.pxd#L17-L20)
 
 ```python
 cdef class IntFloatDict:
     cdef cpp_map[intp_t, float64_t] my_map
 ```
 
-https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/utils/_fast_dict.pxd#L17-L20
+--
+
+### Implementation
+
+
+[utils/_fast_dict.pyx](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/utils/_fast_dict.pyx#L116)
 
 ```python
 cdef class IntFloatDict:
@@ -695,9 +1119,7 @@ cdef class IntFloatDict:
         self.my_map.insert(args)
 ```
 
-- `AgglomerativeClustering`,
-
-https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/utils/_fast_dict.pyx#L116
+- `AgglomerativeClustering`
 
 ---
 
@@ -721,7 +1143,9 @@ def dbscan_inner(...):
 
 - `DBSCAN`
 
-https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/cluster/_dbscan_inner.pyx#L32
+.footnote-back[
+[cluster/_dbscan_inner.pyx](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/cluster/_dbscan_inner.pyx#L32)
+]
 
 ---
 
@@ -743,24 +1167,54 @@ def _fit_encoding_fast(...):
 
 - `TargetEncoder`
 
-https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/preprocessing/_target_encoder_fast.pyx#L20
+.footnote-back[
+[preprocessing/_target_encoder_fast.pyx](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/preprocessing/_target_encoder_fast.pyx#L20)
+]
 
 ---
 
 # C++ Algorithm
 
 ```python
-cpdef build(
+from libcpp.algorithm cimport pop_heap
+from libcpp.algorithm cimport push_heap
 
+cpdef build(...):
+	cdef vector[FrontierRecord] frontier
+
+	while not frontier.empty():
+*       pop_heap(frontier.begin(), frontier.end(), &_compare_records)
+		record = frontier.back()
+		frontier.pop_back()
 ```
 
-https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/tree/_tree.pyx#L468-L469
+- `tree` module, `GradientBoosting*` & `RandomForest*`
+
+.footnote-back[
+[tree/_tree.pyx](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/tree/_tree.pyx#L468-L469)
+]
 
 ---
+
+class: top
+
+<br>
 
 # Fused Types (Intro)
 
 ```python
+ctypedef fused floating:
+	float
+	double
+```
+
+--
+
+## Function definition
+
+```python
+from cython cimport floating
+
 cdef floating abs_max(int n, const floating* a) noexcept nogil:
     """np.max(np.abs(a))"""
     cdef int i
@@ -773,9 +1227,13 @@ cdef floating abs_max(int n, const floating* a) noexcept nogil:
     return m
 ```
 
-https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/linear_model/_cd_fast.pyx#L50-L59
+.footnote-back[
+[linear_model/_cd_fast.pyx](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/linear_model/_cd_fast.pyx#L50-L59)
+]
 
 ---
+
+class: top
 
 # Fused Types (Memoryview)
 
@@ -793,21 +1251,42 @@ ctypedef fused Y_DTYPE:
 
 --
 
+## Function Definition
+
 ```python
 def _fit_encoding_fast(
     INT_DTYPE[:, ::1] X_int,
     const Y_DTYPE[:] y,
     int64_t[::1] n_categories,
-    double smooth,
-    double y_mean,
+	...
 )
 ```
 
-https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/preprocessing/_target_encoder_fast.pyx#L17
+- `TargetEncoder`
+
+.footnote-back[
+[preprocessing/_target_encoder_fast.pyx](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/preprocessing/_target_encoder_fast.pyx#L17)
+]
 
 ---
 
-# C++ Vector + Fused types into NumPy Array
+# C++ Vector & Fused types into NumPy Array
+
+## Vectors point to data on the heap
+
+```python
+from libcpp.vector cimport vector
+
+vector[int64_t] vec
+```
+
+![:scale 100%](images/memory-buffer.svg)
+
+---
+
+class: top
+
+# C++ Vector & Fused types into NumPy Array
 
 ```python
 ctypedef fused vector_typed:
@@ -816,38 +1295,38 @@ ctypedef fused vector_typed:
     vector[int32_t]
     vector[int64_t]
 
-cdef cnp.ndarray vector_to_nd_array(vector_typed * vect_ptr):
-
 cdef class StdVectorSentinelInt64:
-    cdef vector[int64_t] vec
+*   cdef vector[int64_t] vec
 ```
 
 --
 
+## Conversion to NumPy Array
+
 ```python
 cdef cnp.ndarray vector_to_nd_array(vector_typed * vect_ptr):
 	cdef:
-        StdVectorSentinel sentinel = _create_sentinel(vect_ptr)
+*       StdVectorSentinel sentinel = _create_sentinel(vect_ptr)
         cnp.ndarray arr = cnp.PyArray_SimpleNewFromData(...)
 
-		Py_INCREF(sentinel)
-		cnp.PyArray_SetBaseObject(arr, sentinel)
+*       Py_INCREF(sentinel)
+*       cnp.PyArray_SetBaseObject(arr, sentinel)
 		return arr
 ```
 
-https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/utils/_vector_sentinel.pxd#L6-L12
+.footnote-back[
+[utils/_vector_sentinel.pxd](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/utils/_vector_sentinel.pxd#L6-L12)
+]
 
 ---
 
 # Tempita
-
+## Code Generation!
 
 ```python
 # name_suffix, c_type
 dtypes = [('64', 'double'),
           ('32', 'float')]
-
-}}
 
 {{for name_suffix, c_type in dtypes}}
 
@@ -857,6 +1336,27 @@ cdef class WeightVector{{name_suffix}}(object):
 	...
 
 {{endfor}}
+```
+
+- `Perceptron`, `SGDClassifier`, `SGDRegressor`, `PassiveAggressive*`
+
+.footnote-back[
+[utils/_weight_vector.pyx.tp](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/utils/_weight_vector.pyx.tp#L34)
+]
+
+---
+
+class: top
+
+<br>
+
+# Tempita
+
+```python
+cdef class WeightVector{{name_suffix}}(object):
+    cdef readonly {{c_type}}[::1] w
+    cdef readonly {{c_type}}[::1] aw
+	...
 ```
 
 --
@@ -874,12 +1374,16 @@ cdef class WeightVector32(object):
 ```
 
 
-https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/utils/_weight_vector.pxd.tp#L21-L27
+.footnote-back[
+[utils/_weight_vector.pxd.tp](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/utils/_weight_vector.pxd.tp#L21-L27)
+]
 
 ---
 
+class: top
+
 # Optimizing Performance (Virtual Table)
-## The Problem
+### The Problem
 
 ```python
 cdef class CyLossFunction:
@@ -888,10 +1392,12 @@ cdef class CyLossFunction:
 		for i in prange(
 			n_samples, schedule='static', nogil=True, num_threads=n_threads
 		):
-			loss_out[i] = self.single_loss(y_true[i], raw_prediction[i]{{with_param}})
+*			loss_out[i] = self.single_loss(y_true[i], raw_prediction[i])
 ```
 
 --
+
+### Subclass
 
 ```python
 cdef class CyHalfSquaredError(CyLossFunction):
@@ -906,16 +1412,14 @@ cdef class CyHalfSquaredError(CyLossFunction):
 
 --
 
-## Does not work!
-
---
-
-## Solution - Do not be dynamic!
+## Performance regression: Can not be dynamic! ❌
 
 ---
 
+class: top
+
 # Optimizing Performance (Virtual Table)
-## Tempita
+### Tempita
 
 ```python
 cdef class {{name}}(CyLossFunction):
@@ -924,12 +1428,12 @@ cdef class {{name}}(CyLossFunction):
 		for i in prange(
 			n_samples, schedule='static', nogil=True, num_threads=n_threads
 		):
-			loss_out[i] = {{closs}}(y_true[i], raw_prediction[i]{{with_param}})
+*			loss_out[i] = {{closs}}(y_true[i], raw_prediction[i]{{with_param}})
 ```
 
 --
 
-## Generated Code
+### Generated Code
 
 ```python
 cdef class CyHalfSquaredError(CyLossFunction):
@@ -941,14 +1445,17 @@ cdef class CyHalfSquaredError(CyLossFunction):
 *			loss_out[i] = closs_half_squared_error(y_true[i], raw_prediction[i])
 ```
 
-https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/_loss/_loss.pyx.tp#L1025
 
-- `linear`, `GradientBoosting*`, `HistGradientBoosting*`
+- `linear` module, `GradientBoosting*`, `HistGradientBoosting*`
+
+.footnote-back[
+[_loss/_loss.pyx.tp](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/_loss/_loss.pyx.tp#L1025)
+]
 
 ---
 
 # Optimizing Performance (Virtual Table)
-## Fused Types on classes
+### Fused Types on classes
 
 ```python
 ctypedef fused Partitioner:
@@ -958,36 +1465,58 @@ ctypedef fused Partitioner:
 
 --
 
+### Function definition
+
 ```python
 cdef inline int node_split_best(
     Splitter splitter,
     Partitioner partitioner,
-	...):
+	...
+):
 		partitioner.init_node_split(...)
 
 		while ...:
 			partitioner.find_min_max(...)
 ```
 
-- `tree`, `RandomForest*`, `GradientBoosting*`
+- `tree` module, `RandomForest*`, `GradientBoosting*`
 
-https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/tree/_splitter.pyx#L40-L42
+.footnote-back[
+[tree/_splitter.pyx](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/tree/_splitter.pyx#L40-L42)
+]
 
 ---
 
-# Cython Features Covered Today
+# Cython Features Covered
 
 .g[
 .g-6[
-## Python <> Cython Interface
+## Python <-> Cython interface ⚙️
 - Compiling
 - Types
-- Memoryviews
+- Memoryviews (NumPy interaction)
+- "Cython classes"
 ]
 .g-6[
-## Performance Features
+]
+]
+
+---
+
+# Cython Features Covered
+
+.g[
+.g-6[
+## Python <-> Cython interface ⚙️
+- Compiling
+- Types
+- Memoryviews (NumPy interaction)
 - "Cython classes"
-- C++
+]
+.g-6[
+## Performance 🏎️
+- Using SciPy BLAS
+- C++ Objects (Vector, Map, Algorithm)
 - Fused Types
 - Tempita
 ]
@@ -995,41 +1524,57 @@ https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/tree/_splitter.
 
 ---
 
+class: top
+
+<br>
+
 # Performance Uplift
 
-- `TargetEncoder` - 4-5x runtime and less memory usage compared to pure NumPy version
-- `HistGradientBoosting*`: LightGBM-like performance
-- `LogisticRegression`, `GammaRegressor`, `PoissonRegressor`, `TweedieRegressor`, `GradientBoosting*`
-	- 2x improvement
-- Almost all estimators in `cluster`, `manifold`, `neighbors`, `semi_supervised` modules
-	- 20x improvement
-- Reduce memory usage for nan-inf check
+.g.g-center[
+.g-1[]
+.g-5[
+![:scale 70%](images/scikit-learn-logo-without-subtitle.svg)
+]
+.g-5[
+![:scale 70%](images/cython-logo.jpg)
+]
+.g-1[]
+]
+
+- `HistGradientBoosting*`: **LightGBM**-like performance
+- **2x improvement**: `LogisticRegression`, `linear_model` module, and `GradientBoosting*`
+
+- **20x improvement** in `cluster`, `manifold`, `neighbors`, `semi_supervised` modules
+- `TargetEncoder` - **4-5x runtime** and less memory usage
+- **Reduce memory usage** for validation checks
 
 ---
 
+class: top
+
+<br><br>
+
+# Pushing Cython to its Limits in Scikit-learn
 
 .g.g-middle[
-.g-7[
-.smaller[
-# Pushing Cython to its Limits in Scikit-learn
+.g-6[
+## Why Cython? 🚀
+## Cython 101 🍀
+## Scikit-learn Use Cases 🛠️
 ]
-- Why Cython? 🚀
-- Cython 101 🍀
-- Scikit-learn Use Cases 🛠️
-]
-.g-5.g-center[
-.smaller[
-]
-
-Thomas J. Fan<br>
-<a href="https://www.github.com/thomasjpfan" target="_blank" class="title-link"><span class="icon icon-github right-margin"></span>@thomasjpfan</a>
-<a class="this-talk-link", href="https://github.com/thomasjpfan/pydata-nyc-2024-cython-in-scikit-learn" target="_blank">github.com/thomasjpfan/pydata-nyc-2024-cython-in-scikit-learn</a>
-
+.g-6[
 ]
 ]
 
+--
+
+- **Material**: [github.com/thomasjpfan/pydata-nyc-2024-cython-in-scikit-learn](https://github.com/thomasjpfan/pydata-nyc-2024-cython-in-scikit-learn)
+- **Linkedin**: [linkedin.com/in/thomasjpfan/](https://www.linkedin.com/in/thomasjpfan/)
+- **GitHub**: [github.com/thomasjpfan](https://www.github.com/thomasjpfan)
 
 ---
+
+class: chapter-slide
 
 # Appendix
 

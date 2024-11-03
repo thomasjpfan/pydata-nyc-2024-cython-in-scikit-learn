@@ -135,10 +135,10 @@ img {
 
 .footnote {
   position: absolute;
-  bottom: 0.5em;
+  bottom: 1em;
   font-size: 0.8em;
   opacity: 0.9;
-  left: 1.5em;
+  left: 2em;
 }
 
 .footnote a {
@@ -151,7 +151,7 @@ img {
   bottom: 0.5em;
   font-size: 0.7em;
   opacity: 0.9;
-  right: 1.5em;
+  right: 2em;
 }
 
 .inactive {
