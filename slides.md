@@ -58,10 +58,10 @@ class: top
 # Why Cython? 🚀
 
 .g.g-middle[
-.g-6[
+.g-6.larger[
 ## Performance
-- Reduce Memory Usage
-- Improve CPU Usage
+### Improve Runtime 🏎️
+### Reduce Memory 🧠
 ]
 .g-6[
 ![:scale 80%](images/speed.jpg)
@@ -115,8 +115,7 @@ class: top
 
 .g.g-middle[
 .g-6[
-# Why Cython? 🚀
-## Profiling
+# Profiling 🔬
 - `cProfile` + snakeviz
 - `viztracer`
 - `memray`
@@ -139,9 +138,9 @@ class: chapter-slide
 .g-6[
 # Cython 101 🍀
 
-- Compiling
-- Types
-- Developer Tips
+## - Compiling
+## - Types
+## - Developer Tips
 
 ]
 .g-6[
@@ -164,7 +163,7 @@ def add(x, y):
 
 --
 
-# `setup.py`
+## `setup.py`
 
 ```python
 from setuptools import setup
@@ -174,6 +173,10 @@ setup(
     ext_modules=cythonize("simple.pyx"),
 )
 ```
+
+--
+
+## Build Command
 
 ```bash
 python setup.py build_ext --inplace
@@ -199,7 +202,7 @@ print(result)
 --
 
 ## Benefits
-Does not go through the Python Interpreter
+- Does not go through the Python Interpreter
 
 ```python
 # simple.pyx
@@ -272,7 +275,7 @@ cython --annotate simple.pyx
 ```
 
 .center[
-![:scale 80%](images/simple-annotated.jpg)
+![:scale 70%](images/cython-cli-annotate.jpg)
 ]
 
 ---
@@ -280,14 +283,14 @@ cython --annotate simple.pyx
 # Working in Jupyter
 
 .center[
-![:scale 80%](images/cython-notebook-magic.jpeg)
+![:scale 100%](images/simple-annotated.jpg)
 ]
 
 ---
 
 # Working in Jupyter (Annotation)
 
-![:scale 65%](images/cython-notebook-annotate.jpg)
+![:scale 55%](images/cython-notebook-annotate.jpg)
 
 ---
 
@@ -340,7 +343,7 @@ result = add_value(y, 1.4)
 
 --
 
-### Python [Buffer Protocol](https://docs.python.org/3/c-api/buffer.html) 🔌
+## Python [Buffer Protocol](https://docs.python.org/3/c-api/buffer.html) 🔌
 
 ---
 
@@ -464,7 +467,7 @@ cimport cython
 
 ## Globally in build backend 🌎
 
-[scikit-learn's meson.build](https://github.com/scikit-learn/scikit-learn/blob/main/sklearn/meson.build#L183-L190)
+Scikit-learn's [sklearn/meson.build](https://github.com/scikit-learn/scikit-learn/blob/main/sklearn/meson.build#L183-L190)
 
 ---
 
@@ -511,18 +514,16 @@ def _make_unique(...):
 
 class: top
 
-<br>
-
 # Strides 2D
 
-![](images/memory-buffer.svg)
+![:scale 70%](images/memory-buffer.svg)
 
 --
 
 .g[
 .g-6[
 #### `float[:, ::1]` - C contiguous
-![](images/strides-2d-C.svg)
+![:scale 50%](images/strides-2d-C.svg)
 ]
 .g-6[
 ]
@@ -532,20 +533,18 @@ class: top
 
 class: top
 
-<br>
-
 # Strides 2D
 
-![](images/memory-buffer.svg)
+![:scale 70%](images/memory-buffer.svg)
 
 .g[
 .g-6[
 #### `float[:, ::1]` - C contiguous
-![](images/strides-2d-C.svg)
+![:scale 50%](images/strides-2d-C.svg)
 ]
 .g-6[
 #### `float[::1, :]` - F contiguous
-![](images/strides-2d-F.svg)
+![:scale 40%](images/strides-2d-F.svg)
 ]
 ]
 
@@ -817,10 +816,10 @@ class: top
 ```python
 cdef class Tree:
 	cdef public intp_t n_features
-	cdef intp_t* n_classes
+*   cdef intp_t* n_classes
 	cdef public intp_t n_outputs
 	...
-	cdef Node* nodes
+*   cdef Node* nodes
 	cdef float64_t* value
 ```
 
@@ -871,7 +870,6 @@ class: top
 
 # Header files
 
-`HistGradientBoosting*`
 
 ```python
 cdef packed struct node_struct:
@@ -882,7 +880,7 @@ cdef packed struct node_struct:
 	...
 ```
 
-[ensemble/_hist_gradient_boosting/common.pxd](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_hist_gradient_boosting/common.pxd#L20-L27)
+- **`HistGradientBoosting*`**: [ensemble/_hist_gradient_boosting/common.pxd](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_hist_gradient_boosting/common.pxd#L20-L27)
 
 --
 
@@ -892,7 +890,7 @@ cdef packed struct node_struct:
 from .common cimport node_struct
 ```
 
-[ensemble/_hist_gradient_boosting/_predictor.pyx](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_hist_gradient_boosting/_predictor.pyx#L13)
+- [ensemble/_hist_gradient_boosting/_predictor.pyx](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_hist_gradient_boosting/_predictor.pyx#L13)
 
 
 ---
