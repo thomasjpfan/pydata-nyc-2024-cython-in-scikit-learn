@@ -411,7 +411,7 @@ scikit_learn_cython_args = [
 ```
 
 .footnote-back[
-[meson.build](https://github.com/scikit-learn/scikit-learn/blob/main/sklearn/meson.build#L183-L190)
+[meson.build](https://github.com/scikit-learn/scikit-learn/blob/e9c394232e826e211d3c67a1f1677d47656114cc/sklearn/meson.build#L183-L190)
 ]
 
 ---
@@ -488,7 +488,7 @@ cimport cython
 
 ## Globally in build backend 🌎
 
-Scikit-learn's [sklearn/meson.build](https://github.com/scikit-learn/scikit-learn/blob/main/sklearn/meson.build#L183-L190)
+Scikit-learn's [sklearn/meson.build](https://github.com/scikit-learn/scikit-learn/blob/e9c394232e826e211d3c67a1f1677d47656114cc/sklearn/meson.build#L183-L190)
 
 ---
 
@@ -528,7 +528,7 @@ def _make_unique(...):
 
 
 .footnote-back[
-[_isotonic.pyx](https://github.com/scikit-learn/scikit-learn/blob/main/sklearn/_isotonic.pyx#L111-L115)
+[_isotonic.pyx](https://github.com/scikit-learn/scikit-learn/blob/e9c394232e826e211d3c67a1f1677d47656114cc/sklearn/_isotonic.pyx#L111-L115)
 ]
 
 ---
@@ -726,7 +726,7 @@ cpdef floating _inertia_dense(
 - `KMeans`, `BisectingKMeans`
 
 .footnote-back[
-[cluster/_k_means_common.pyx](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/cluster/_k_means_common.pyx#L94-L101)
+[cluster/_k_means_common.pyx](https://github.com/scikit-learn/scikit-learn/blob/e9c394232e826e211d3c67a1f1677d47656114cc/sklearn/cluster/_k_means_common.pyx#L94-L101)
 ]
 
 ---
@@ -784,7 +784,7 @@ cdef void _build_pruned_tree(...):
 - `tree` module, `RandomForest*`
 
 .footnote-back[
-[tree/_tree.pyx](https://github.com/scikit-learn/scikit-learn/blob/main/sklearn/tree/_tree.pyx#L1869-L1873)
+[tree/_tree.pyx](https://github.com/scikit-learn/scikit-learn/blob/e9c394232e826e211d3c67a1f1677d47656114cc/sklearn/tree/_tree.pyx#L1869-L1873)
 ]
 
 ---
@@ -823,7 +823,7 @@ hist_struct [:, ::1] histograms = np.empty(
 )
 ```
 .footnote-back[
-[ensemble/_hist_gradient_boosting/histogram.pyx](https://github.com/scikit-learn/scikit-learn/blob/main/sklearn/ensemble/_hist_gradient_boosting/histogram.pyx#L141-L144)
+[ensemble/_hist_gradient_boosting/histogram.pyx](https://github.com/scikit-learn/scikit-learn/blob/e9c394232e826e211d3c67a1f1677d47656114cc/sklearn/ensemble/_hist_gradient_boosting/histogram.pyx#L141-L144)
 ]
 
 
@@ -859,7 +859,7 @@ self.tree_ = Tree(self.n_features_in_, self.n_classes_, self.n_outputs_)
 - `DecisionTree*`, `RandomForest*`, `GradientBoosting*`
 
 .footnote-back[
-[tree/_tree.pxd](https://github.com/scikit-learn/scikit-learn/blob/main/sklearn/tree/_tree.pxd#L36-L54)
+[tree/_tree.pxd](https://github.com/scikit-learn/scikit-learn/blob/e9c394232e826e211d3c67a1f1677d47656114cc/sklearn/tree/_tree.pxd#L36-L54)
 ]
 
 ---
@@ -882,7 +882,7 @@ cdef class Tree:
 
 ## Destructor
 
-```
+```python
     def __dealloc__(self):
         free(self.n_classes)
 		free(self.nodes)
@@ -890,7 +890,7 @@ cdef class Tree:
 ```
 
 .footnote-back[
-[tree/_tree.pyx](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/tree/_tree.pyx#L783)
+[tree/_tree.pyx](https://github.com/scikit-learn/scikit-learn/blob/e9c394232e826e211d3c67a1f1677d47656114cc/sklearn/tree/_tree.pyx#L783)
 ]
 
 
@@ -937,7 +937,7 @@ trees = Parallel(
 
 
 .footnote-back[
-[ensemble/_forest.py](https://github.com/scikit-learn/scikit-learn/blob/main/sklearn/ensemble/_forest.py#L492)
+[ensemble/_forest.py](https://github.com/scikit-learn/scikit-learn/blob/e9c394232e826e211d3c67a1f1677d47656114cc/sklearn/ensemble/_forest.py#L492)
 ]
 
 ---
@@ -957,7 +957,7 @@ trees = Parallel(
 Everything in block must **not interact** with Python objects
 
 .footnote-back[
-[tree/_tree.pyx](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/tree/_tree.pyx#L213)
+[tree/_tree.pyx](https://github.com/scikit-learn/scikit-learn/blob/e9c394232e826e211d3c67a1f1677d47656114cc/sklearn/tree/_tree.pyx#L213)
 ]
 
 ---
@@ -990,7 +990,7 @@ cdef class Splitter:
 **Must** have `nogil`
 
 .footnote-back[
-[tree/_splitter.pxd](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/tree/_splitter.pxd#L102)
+[tree/_splitter.pxd](https://github.com/scikit-learn/scikit-learn/blob/e9c394232e826e211d3c67a1f1677d47656114cc/sklearn/tree/_splitter.pxd#L102)
 ]
 
 ---
@@ -1025,7 +1025,7 @@ cdef inline FiniteStatus _isfinite_disable_nan(floating* a_ptr,
 Used **almost everywhere** with `check_array`
 
 .footnote-back[
-[utils/_isfinite.py](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/utils/_isfinite.pyx#L40-L41)
+[utils/_isfinite.py](https://github.com/scikit-learn/scikit-learn/blob/e9c394232e826e211d3c67a1f1677d47656114cc/sklearn/utils/_isfinite.pyx#L40-L41)
 ]
 
 ---
@@ -1053,7 +1053,7 @@ from cython.parallel cimport prange
 - `HistGradientBoosting{Classifier, Regressor}`
 
 .footnote-back[
-[_hist_gradient_boosting/_binning.pyx](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_hist_gradient_boosting/_binning.pyx#L49-L65)
+[_hist_gradient_boosting/_binning.pyx](https://github.com/scikit-learn/scikit-learn/blob/e9c394232e826e211d3c67a1f1677d47656114cc/sklearn/ensemble/_hist_gradient_boosting/_binning.pyx#L49-L65)
 ]
 
 ---
@@ -1086,7 +1086,7 @@ with nogil, parallel(num_threads=n_threads):
 - `KMeans`
 
 .footnote-back[
-[cluster/_k_means_lloyd.pyx](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/cluster/_k_means_lloyd.pyx#L118)
+[cluster/_k_means_lloyd.pyx](https://github.com/scikit-learn/scikit-learn/blob/e9c394232e826e211d3c67a1f1677d47656114cc/sklearn/cluster/_k_means_lloyd.pyx#L118)
 ]
 
 ---
@@ -1122,7 +1122,7 @@ cdef class IntFloatDict:
 - `AgglomerativeClustering`
 
 .footnote-back[
-[utils/_fast_dict.pxd](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/utils/_fast_dict.pxd#L17-L20), [utils/_fast_dict.pyx](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/utils/_fast_dict.pyx#L116)
+[utils/_fast_dict.pxd](https://github.com/scikit-learn/scikit-learn/blob/e9c394232e826e211d3c67a1f1677d47656114cc/sklearn/utils/_fast_dict.pxd#L17-L20), [utils/_fast_dict.pyx](https://github.com/scikit-learn/scikit-learn/blob/e9c394232e826e211d3c67a1f1677d47656114cc/sklearn/utils/_fast_dict.pyx#L116)
 ]
 
 ---
@@ -1148,7 +1148,7 @@ def dbscan_inner(...):
 - `DBSCAN`
 
 .footnote-back[
-[cluster/_dbscan_inner.pyx](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/cluster/_dbscan_inner.pyx#L32)
+[cluster/_dbscan_inner.pyx](https://github.com/scikit-learn/scikit-learn/blob/e9c394232e826e211d3c67a1f1677d47656114cc/sklearn/cluster/_dbscan_inner.pyx#L32)
 ]
 
 ---
@@ -1172,7 +1172,7 @@ def _fit_encoding_fast(...):
 - `TargetEncoder`
 
 .footnote-back[
-[preprocessing/_target_encoder_fast.pyx](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/preprocessing/_target_encoder_fast.pyx#L20)
+[preprocessing/_target_encoder_fast.pyx](https://github.com/scikit-learn/scikit-learn/blob/e9c394232e826e211d3c67a1f1677d47656114cc/sklearn/preprocessing/_target_encoder_fast.pyx#L20)
 ]
 
 ---
@@ -1195,7 +1195,7 @@ cpdef build(...):
 - `tree` module, `GradientBoosting*` & `RandomForest*`
 
 .footnote-back[
-[tree/_tree.pyx](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/tree/_tree.pyx#L468-L469)
+[tree/_tree.pyx](https://github.com/scikit-learn/scikit-learn/blob/e9c394232e826e211d3c67a1f1677d47656114cc/sklearn/tree/_tree.pyx#L468-L469)
 ]
 
 ---
@@ -1232,7 +1232,7 @@ cdef floating abs_max(int n, const floating* a) noexcept nogil:
 ```
 
 .footnote-back[
-[linear_model/_cd_fast.pyx](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/linear_model/_cd_fast.pyx#L50-L59)
+[linear_model/_cd_fast.pyx](https://github.com/scikit-learn/scikit-learn/blob/e9c394232e826e211d3c67a1f1677d47656114cc/sklearn/linear_model/_cd_fast.pyx#L50-L59)
 ]
 
 ---
@@ -1269,7 +1269,7 @@ def _fit_encoding_fast(
 - `TargetEncoder`
 
 .footnote-back[
-[preprocessing/_target_encoder_fast.pyx](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/preprocessing/_target_encoder_fast.pyx#L17)
+[preprocessing/_target_encoder_fast.pyx](https://github.com/scikit-learn/scikit-learn/blob/e9c394232e826e211d3c67a1f1677d47656114cc/sklearn/preprocessing/_target_encoder_fast.pyx#L17)
 ]
 
 ---
@@ -1319,7 +1319,7 @@ cdef cnp.ndarray vector_to_nd_array(vector_typed * vect_ptr):
 ```
 
 .footnote-back[
-[utils/_vector_sentinel.pxd](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/utils/_vector_sentinel.pxd#L6-L12)
+[utils/_vector_sentinel.pxd](https://github.com/scikit-learn/scikit-learn/blob/e9c394232e826e211d3c67a1f1677d47656114cc/sklearn/utils/_vector_sentinel.pxd#L6-L12)
 ]
 
 ---
@@ -1345,7 +1345,7 @@ cdef class WeightVector{{name_suffix}}(object):
 - `Perceptron`, `SGDClassifier`, `SGDRegressor`, `PassiveAggressive*`
 
 .footnote-back[
-[utils/_weight_vector.pyx.tp](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/utils/_weight_vector.pyx.tp#L34)
+[utils/_weight_vector.pyx.tp](https://github.com/scikit-learn/scikit-learn/blob/e9c394232e826e211d3c67a1f1677d47656114cc/sklearn/utils/_weight_vector.pyx.tp#L34)
 ]
 
 ---
@@ -1379,7 +1379,7 @@ cdef class WeightVector32(object):
 
 
 .footnote-back[
-[utils/_weight_vector.pxd.tp](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/utils/_weight_vector.pxd.tp#L21-L27)
+[utils/_weight_vector.pxd.tp](https://github.com/scikit-learn/scikit-learn/blob/e9c394232e826e211d3c67a1f1677d47656114cc/sklearn/utils/_weight_vector.pxd.tp#L21-L27)
 ]
 
 ---
@@ -1453,7 +1453,7 @@ cdef class CyHalfSquaredError(CyLossFunction):
 - `linear_model` module, `GradientBoosting*`, `HistGradientBoosting*`
 
 .footnote-back[
-[_loss/_loss.pyx.tp](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/_loss/_loss.pyx.tp#L1025)
+[_loss/_loss.pyx.tp](https://github.com/scikit-learn/scikit-learn/blob/e9c394232e826e211d3c67a1f1677d47656114cc/sklearn/_loss/_loss.pyx.tp#L1025)
 ]
 
 ---
@@ -1490,7 +1490,7 @@ cdef inline int node_split_best(
 - `tree` module, `RandomForest*`, `GradientBoosting*`
 
 .footnote-back[
-[tree/_splitter.pyx](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/tree/_splitter.pyx#L40-L42)
+[tree/_splitter.pyx](https://github.com/scikit-learn/scikit-learn/blob/e9c394232e826e211d3c67a1f1677d47656114cc/sklearn/tree/_splitter.pyx#L40-L42)
 ]
 
 ---
@@ -1686,7 +1686,7 @@ cdef packed struct node_struct:
 	...
 ```
 
-- **`HistGradientBoosting*`**: [ensemble/_hist_gradient_boosting/common.pxd](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_hist_gradient_boosting/common.pxd#L20-L27)
+- **`HistGradientBoosting*`**: [ensemble/_hist_gradient_boosting/common.pxd](https://github.com/scikit-learn/scikit-learn/blob/e9c394232e826e211d3c67a1f1677d47656114cc/sklearn/ensemble/_hist_gradient_boosting/common.pxd#L20-L27)
 
 --
 
@@ -1696,7 +1696,7 @@ cdef packed struct node_struct:
 from .common cimport node_struct
 ```
 
-- [ensemble/_hist_gradient_boosting/_predictor.pyx](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_hist_gradient_boosting/_predictor.pyx#L13)
+- [ensemble/_hist_gradient_boosting/_predictor.pyx](https://github.com/scikit-learn/scikit-learn/blob/e9c394232e826e211d3c67a1f1677d47656114cc/sklearn/ensemble/_hist_gradient_boosting/_predictor.pyx#L13)
 
 ---
 
