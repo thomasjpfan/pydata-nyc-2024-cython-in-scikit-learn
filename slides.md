@@ -61,7 +61,7 @@ class: top
 .g-6.larger[
 ## Performance
 ### Improve Runtime 🏎️
-### Reduce Memory 🧠
+### Reduce Memory Usage 🧠
 ]
 .g-6[
 ![:scale 80%](images/speed.jpg)
@@ -244,7 +244,6 @@ class: top
 
 - `def` : Call from Python
 - `cdef` : Call from Cython
-- `cpdef` : Call from Python & Cython
 
 --
 
@@ -264,6 +263,10 @@ def two_linear(slope: float, x: float, b: float):
 
     return result
 ```
+
+--
+
+- `cpdef` : Call from Python & Cython (Scikit-learn uses it like a `def`)
 
 ---
 
@@ -304,10 +307,12 @@ class: chapter-slide
 .g.g-middle[
 .g-6[
 # Scikit-learn Use Cases 🛠️
-- Python <-> Cython interface ⚙️
-- Performance
-	- Improve Runtime 🏎️
-	- Reduce Memory 🧠
+## Python <-> Cython interface ⚙️
+## Performance
+
+- Improve Runtime 🏎️
+- Reduce Memory Usage 🧠
+
 ]
 .g-6.g-center[
 ![:scale 70%](images/scikit-learn-logo-without-subtitle.svg)
@@ -323,6 +328,11 @@ class: top
 .center[
 ![:scale 30%](images/numpy.png)
 ]
+
+--
+
+## Memoryview
+
 
 ```python
 %% cython
@@ -717,7 +727,7 @@ cpdef floating _inertia_dense(
 from sklearn.experimental import enable_halving_search_cv
 from sklearn.model_selection import HalvingRandomSearchCV
 
-search_cv = HalvingRandomSearchCV(estimator, n_jobs=8)
+search_cv = HalvingRandomSearchCV(estimator, ..., n_jobs=8)
 search_cv.fit(X, y)
 ```
 
@@ -742,6 +752,8 @@ cdef struct BuildPrunedRecord:
 ## Depth first search
 
 ```python
+from libcpp.stack cimport stack
+
 cdef void _build_pruned_tree(...):
 	cdef:
         stack[BuildPrunedRecord] prune_stack
@@ -825,6 +837,14 @@ cdef class Tree:
 
 --
 
+## `__init__` from Python
+
+```python
+self.tree_ = Tree(self.n_features_in_, self.n_classes_, self.n_outputs_)
+```
+
+--
+
 - `DecisionTree*`, `RandomForest*`, `GradientBoosting*`
 
 .footnote-back[
@@ -862,36 +882,12 @@ cdef class Tree:
 [tree/_tree.pyx](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/tree/_tree.pyx#L783)
 ]
 
+
 ---
 
-class: top
+class: chapter-slide
 
-<br>
-
-# Header files
-
-
-```python
-cdef packed struct node_struct:
-    Y_DTYPE_C value
-    unsigned int count
-    intp_t feature_idx
-    X_DTYPE_C num_threshold
-	...
-```
-
-- **`HistGradientBoosting*`**: [ensemble/_hist_gradient_boosting/common.pxd](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_hist_gradient_boosting/common.pxd#L20-L27)
-
---
-
-## Imported from another file
-
-```python
-from .common cimport node_struct
-```
-
-- [ensemble/_hist_gradient_boosting/_predictor.pyx](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_hist_gradient_boosting/_predictor.pyx#L13)
-
+# Performance 🏎️
 
 ---
 
@@ -906,6 +902,7 @@ from .common cimport node_struct
 ]
 
 ---
+
 
 class: top
 
@@ -987,12 +984,6 @@ cdef class Splitter:
 
 ---
 
-class: chapter-slide
-
-# Performance 🏎️
-
----
-
 class: top
 
 # Checking for nans or infs
@@ -1000,8 +991,8 @@ class: top
 ### NumPy
 
 ```python
-has_inf = xp.any(xp.isinf(X))
-has_nan = xp.any(xp.isnan(X))
+has_inf = np.any(np.isinf(X))
+has_nan = np.any(np.isnan(X))
 ```
 
 --
@@ -1033,6 +1024,8 @@ Used **almost everywhere** with `check_array`
 ## Native Parallelism
 
 ```python
+from cython.parallel cimport prange
+
 *for i in prange(data.shape[0], schedule='static', nogil=True, num_threads=n_threads):
 	left, right = 0, binning_thresholds.shape[0]
 
@@ -1079,6 +1072,8 @@ with nogil, parallel(num_threads=n_threads):
 		_update_chunk_dense(...)  # function calls gemm
 ```
 
+- `KMeans`
+
 .footnote-back[
 [cluster/_k_means_lloyd.pyx](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/cluster/_k_means_lloyd.pyx#L118)
 ]
@@ -1091,7 +1086,7 @@ class: top
 
 # C++ (Map)
 
-[utils/_fast_dict.pxd](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/utils/_fast_dict.pxd#L17-L20)
+### Header
 
 ```python
 cdef class IntFloatDict:
@@ -1102,8 +1097,6 @@ cdef class IntFloatDict:
 
 ### Implementation
 
-
-[utils/_fast_dict.pyx](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/utils/_fast_dict.pyx#L116)
 
 ```python
 cdef class IntFloatDict:
@@ -1117,6 +1110,10 @@ cdef class IntFloatDict:
 
 - `AgglomerativeClustering`
 
+.footnote-back[
+[utils/_fast_dict.pxd](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/utils/_fast_dict.pxd#L17-L20), [utils/_fast_dict.pyx](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/utils/_fast_dict.pyx#L116)
+]
+
 ---
 
 # C++ (Vector)
@@ -1128,8 +1125,8 @@ def dbscan_inner(...):
     cdef vector[intp_t] stack
 
 	while True:
-		...
-			stack.push_back(v)
+        ...
+        stack.push_back(v)
 
 		if stack.size() == 0:
 			break
@@ -1156,7 +1153,7 @@ def _fit_encoding_fast(...):
     encoding_vec.resize(n_features)
     for feat_idx in range(n_features):
         current_encoding = np.empty(shape=n_categories[feat_idx], dtype=np.float64)
-        encoding_vec[feat_idx] = &current_encoding[0]
+        encoding_vec[feat_idx] = & current_encoding[0]
 
 
 ```
@@ -1388,7 +1385,7 @@ cdef class CyLossFunction:
 		for i in prange(
 			n_samples, schedule='static', nogil=True, num_threads=n_threads
 		):
-*			loss_out[i] = self.single_loss(y_true[i], raw_prediction[i])
+*			loss_out[i] = self.point_loss(y_true[i], raw_prediction[i])
 ```
 
 --
@@ -1398,7 +1395,7 @@ cdef class CyLossFunction:
 ```python
 cdef class CyHalfSquaredError(CyLossFunction):
 
-	cdef inline double self.single_loss(
+	cdef inline double point_loss(
 		double y_true,
 		double raw_prediction
 	) noexcept nogil:
@@ -1442,13 +1439,17 @@ cdef class CyHalfSquaredError(CyLossFunction):
 ```
 
 
-- `linear` module, `GradientBoosting*`, `HistGradientBoosting*`
+- `linear_model` module, `GradientBoosting*`, `HistGradientBoosting*`
 
 .footnote-back[
 [_loss/_loss.pyx.tp](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/_loss/_loss.pyx.tp#L1025)
 ]
 
 ---
+
+class: top
+
+<br>
 
 # Optimizing Performance (Virtual Table)
 ### Fused Types on classes
@@ -1545,7 +1546,9 @@ class: top
 
 <br>
 
+.center[
 # Pushing Cython to its Limits in Scikit-learn
+]
 
 .g.g-middle[
 .g-6[
@@ -1654,3 +1657,46 @@ scalene np-copy.py
 
 ![](images/scalene.jpg)
 
+---
+
+class: top
+
+<br>
+
+# Header files
+
+
+```python
+cdef packed struct node_struct:
+    Y_DTYPE_C value
+    unsigned int count
+    intp_t feature_idx
+    X_DTYPE_C num_threshold
+	...
+```
+
+- **`HistGradientBoosting*`**: [ensemble/_hist_gradient_boosting/common.pxd](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_hist_gradient_boosting/common.pxd#L20-L27)
+
+--
+
+## Imported from another file
+
+```python
+from .common cimport node_struct
+```
+
+- [ensemble/_hist_gradient_boosting/_predictor.pyx](https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/_hist_gradient_boosting/_predictor.pyx#L13)
+
+---
+
+# Free-threading
+
+| Method | Data sharing | GIL |
+| ------ | ------------ | --- |
+| Multi-threading  | Shared | Release GIL or native code |
+| Multi-processing | Pickle & memmap | No issue |
+| Sub-Interpreters | Pickle & memmap | No issue |
+| Free-threading | Shared | No Issue |
+
+- Requires native library support: https://py-free-threading.github.io/
+- Utilities for data sharing: https://github.com/facebookincubator/ft_utils
