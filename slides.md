@@ -59,11 +59,13 @@ class: top
 
 .g.g-middle[
 .g-6.larger[
-## Performance
+## 1. Python-Like 🐍
+
+## 2. Performance
 ### Improve Runtime 🏎️
 ### Reduce Memory Usage 🧠
 ]
-.g-6[
+.g-6.g-center[
 ![:scale 80%](images/speed.jpg)
 ]
 ]
@@ -762,14 +764,6 @@ cdef void _build_pruned_tree(...):
         prune_stack.push({"start": 0, "depth": 0, "parent": _TREE_UNDEFINED, "is_left": 0})
 ```
 
---
-
-```python
-        while not prune_stack.empty():
-            stack_record = prune_stack.top()
-            prune_stack.pop()
-```
-
 - `tree` module, `RandomForest*`
 
 .footnote-back[
@@ -1451,43 +1445,6 @@ class: top
 
 <br>
 
-# Optimizing Performance (Virtual Table)
-### Fused Types on classes
-
-```python
-ctypedef fused Partitioner:
-    DensePartitioner
-    SparsePartitioner
-```
-
---
-
-### Function definition
-
-```python
-cdef inline int node_split_best(
-    Splitter splitter,
-    Partitioner partitioner,
-	...
-):
-		partitioner.init_node_split(...)
-
-		while ...:
-			partitioner.find_min_max(...)
-```
-
-- `tree` module, `RandomForest*`, `GradientBoosting*`
-
-.footnote-back[
-[tree/_splitter.pyx](https://github.com/scikit-learn/scikit-learn/blob/e9c394232e826e211d3c67a1f1677d47656114cc/sklearn/tree/_splitter.pyx#L40-L42)
-]
-
----
-
-class: top
-
-<br>
-
 .g.g-middle[
 .g-6[
 # Cython Features Covered
@@ -1700,3 +1657,42 @@ from .common cimport node_struct
 
 - Requires native library support: https://py-free-threading.github.io/
 - Utilities for data sharing: https://github.com/facebookincubator/ft_utils
+
+---
+
+class: top
+
+<br>
+
+# Optimizing Performance (Virtual Table)
+### Fused Types on classes
+
+```python
+ctypedef fused Partitioner:
+    DensePartitioner
+    SparsePartitioner
+```
+
+--
+
+### Function definition
+
+```python
+cdef inline int node_split_best(
+    Splitter splitter,
+    Partitioner partitioner,
+	...
+):
+		partitioner.init_node_split(...)
+
+		while ...:
+			partitioner.find_min_max(...)
+```
+
+- `tree` module, `RandomForest*`, `GradientBoosting*`
+
+.footnote-back[
+[tree/_splitter.pyx](https://github.com/scikit-learn/scikit-learn/blob/e9c394232e826e211d3c67a1f1677d47656114cc/sklearn/tree/_splitter.pyx#L40-L42)
+]
+
+---
