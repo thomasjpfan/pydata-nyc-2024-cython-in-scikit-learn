@@ -1307,6 +1307,42 @@ cdef cnp.ndarray vector_to_nd_array(vector_typed * vect_ptr):
 
 ---
 
+class: top
+
+<br>
+
+# Fused Types on classes
+
+```python
+ctypedef fused Partitioner:
+    DensePartitioner
+    SparsePartitioner
+```
+
+--
+
+## Function definition
+
+```python
+cdef inline int node_split_best(
+    Splitter splitter,
+    Partitioner partitioner,
+	...
+):
+		partitioner.init_node_split(...)
+
+		while ...:
+			partitioner.find_min_max(...)
+```
+
+- `tree` module, `RandomForest*`, `GradientBoosting*`
+
+.footnote-back[
+[tree/_splitter.pyx](https://github.com/scikit-learn/scikit-learn/blob/e9c394232e826e211d3c67a1f1677d47656114cc/sklearn/tree/_splitter.pyx#L40-L42)
+]
+
+---
+
 # Tempita
 ## Code Generation!
 
@@ -1657,40 +1693,3 @@ from .common cimport node_struct
 
 - Requires native library support: https://py-free-threading.github.io/
 - Utilities for data sharing: https://github.com/facebookincubator/ft_utils
-
----
-
-class: top
-
-<br>
-
-# Optimizing Performance (Virtual Table)
-### Fused Types on classes
-
-```python
-ctypedef fused Partitioner:
-    DensePartitioner
-    SparsePartitioner
-```
-
---
-
-### Function definition
-
-```python
-cdef inline int node_split_best(
-    Splitter splitter,
-    Partitioner partitioner,
-	...
-):
-		partitioner.init_node_split(...)
-
-		while ...:
-			partitioner.find_min_max(...)
-```
-
-- `tree` module, `RandomForest*`, `GradientBoosting*`
-
-.footnote-back[
-[tree/_splitter.pyx](https://github.com/scikit-learn/scikit-learn/blob/e9c394232e826e211d3c67a1f1677d47656114cc/sklearn/tree/_splitter.pyx#L40-L42)
-]
