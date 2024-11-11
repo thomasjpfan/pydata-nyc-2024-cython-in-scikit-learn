@@ -1011,17 +1011,15 @@ cdef class IntFloatDict:
 
 --
 
-### Implementation
+<br>
 
+### Use in Python
 
 ```python
-cdef class IntFloatDict:
-    def append(self, intp_t key, float64_t value):
-        # Construct our arguments
-        cdef pair[intp_t, float64_t] args
-        args.first = key
-        args.second = value
-        self.my_map.insert(args)
+d = IntFloatDict(keys, values)
+
+for key, value in zip(keys, values):
+    assert d[key] == value
 ```
 
 - `AgglomerativeClustering`
@@ -1041,13 +1039,10 @@ def dbscan_inner(...):
     cdef vector[intp_t] stack
 
 	while True:
-        ...
         stack.push_back(v)
 
 		if stack.size() == 0:
 			break
-		i = stack.back()
-		stack.pop_back()
 ```
 
 - `DBSCAN`
@@ -1064,12 +1059,12 @@ def dbscan_inner(...):
 def _fit_encoding_fast(...):
 	cdef:
         # Gives access to encodings without gil
-        vector[double*] encoding_vec
+*       vector[double*] encoding_vec
 
     encoding_vec.resize(n_features)
     for feat_idx in range(n_features):
         current_encoding = np.empty(shape=n_categories[feat_idx], dtype=np.float64)
-        encoding_vec[feat_idx] = & current_encoding[0]
+*       encoding_vec[feat_idx] = & current_encoding[0]
 
 
 ```
@@ -1265,37 +1260,10 @@ cdef inline int node_split_best(
 
 ---
 
-# Tempita
-## Code Generation!
-
-```python
-# name_suffix, c_type
-dtypes = [('64', 'double'),
-          ('32', 'float')]
-
-{{for name_suffix, c_type in dtypes}}
-
-cdef class WeightVector{{name_suffix}}(object):
-    cdef readonly {{c_type}}[::1] w
-    cdef readonly {{c_type}}[::1] aw
-	...
-
-{{endfor}}
-```
-
-- `Perceptron`, `SGDClassifier`, `SGDRegressor`, `PassiveAggressive*`
-
-.footnote-back[
-[utils/_weight_vector.pyx.tp](https://github.com/scikit-learn/scikit-learn/blob/e9c394232e826e211d3c67a1f1677d47656114cc/sklearn/utils/_weight_vector.pyx.tp#L34)
-]
-
----
-
 class: top
 
-<br>
-
 # Tempita
+## Code Generation!
 
 ```python
 cdef class WeightVector{{name_suffix}}(object):
@@ -1318,6 +1286,7 @@ cdef class WeightVector32(object):
     cdef readonly float[::1] aw
 ```
 
+- `Perceptron`, `SGDClassifier`, `SGDRegressor`, `PassiveAggressive*`
 
 .footnote-back[
 [utils/_weight_vector.pxd.tp](https://github.com/scikit-learn/scikit-learn/blob/e9c394232e826e211d3c67a1f1677d47656114cc/sklearn/utils/_weight_vector.pxd.tp#L21-L27)
