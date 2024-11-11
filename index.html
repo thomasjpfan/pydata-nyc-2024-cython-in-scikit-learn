@@ -1215,10 +1215,10 @@ cdef class StdVectorSentinelInt64:
 ```python
 cdef cnp.ndarray vector_to_nd_array(vector_typed * vect_ptr):
 	cdef:
-*       StdVectorSentinel sentinel = _create_sentinel(vect_ptr)
-        cnp.ndarray arr = cnp.PyArray_SimpleNewFromData(...)
+        StdVectorSentinel sentinel = _create_sentinel(vect_ptr)
+*       cnp.ndarray arr = cnp.PyArray_SimpleNewFromData(...)
 
-*       Py_INCREF(sentinel)
+        Py_INCREF(sentinel)
 *       cnp.PyArray_SetBaseObject(arr, sentinel)
 		return arr
 ```
