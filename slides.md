@@ -655,6 +655,8 @@ search_cv.fit(X, y)
 
 class: top
 
+<br>
+
 # Structs
 
 ```python
@@ -664,6 +666,8 @@ cdef struct SplitRecord:
 ```
 
 --
+
+<br>
 
 ## Building trees
 
@@ -699,6 +703,8 @@ HISTOGRAM_DTYPE = np.dtype([
 
 --
 
+### Cython
+
 ```python
 cdef packed struct hist_struct:
     Y_DTYPE_C sum_gradients
@@ -733,10 +739,10 @@ class: top
 ```python
 cdef class Tree:
 	cdef public intp_t n_features
-*   cdef intp_t* n_classes
+    cdef intp_t* n_classes
 	cdef public intp_t n_outputs
 	...
-*   cdef Node* nodes
+    cdef Node* nodes
 	cdef float64_t* value
 ```
 
@@ -747,8 +753,6 @@ cdef class Tree:
 ```python
 self.tree_ = Tree(self.n_features_in_, self.n_classes_, self.n_outputs_)
 ```
-
---
 
 - `DecisionTree*`, `RandomForest*`, `GradientBoosting*`
 
